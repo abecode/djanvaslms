@@ -8,9 +8,23 @@ https://docs.djangoproject.com/en/3.0/topics/settings/
 
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
+
+also see:
+https://djangostars.com/blog/configuring-django-settings-best-practices/
+
 """
 
 import os
+
+from django.core.exceptions import ImproperlyConfigured
+
+
+def get_env_value(env_variable):
+    try:
+        return os.environ[env_variable]
+    except KeyError:
+        error_msg = 'Set the {} environment variable'.format(var_name)
+        raise ImproperlyConfigured(error_msg)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,10 +34,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'tpimpx6r6gy$4m4^)^(4qv5do63ewxj%8uz%qu^xaov^^^%fec'
+SECRET_KEY = get_env_value('DJANVAS_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = get_env_value('DJANVAS_DEBUG') == "True"
 
 ALLOWED_HOSTS = []
 
@@ -75,8 +89,12 @@ WSGI_APPLICATION = 'djanvaslms.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': get_env_value("DJANVAS_DATABASE_NAME")
+        'USER': get_env_value("DJANVAS_DATABASE_USER"),
+        #'PASSWORD': 'mypassword',
+        'HOST': get_env_value("DJANVAS_DATABASE_HOST"),
+        'PORT': int(get_env_value("DJANVAS_DATABASE_PORT")),
     }
 }
 

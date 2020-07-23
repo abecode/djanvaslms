@@ -21,3 +21,7 @@ A Django layer on top of Canvas LMS (Learning Management System)
 - install django, and other libraries
   - ```pip install -r requirements.txt```
   - virtualenvironments are a good idea
+- get Canvas api token
+  - (under Account -> Settings -> Approved Integrations -> New Access Token)
+  - eventually this will use full OAUTH but currently the token is
+    just saved in an environment variable ($DJANVAS_TOKEN)
