@@ -23,7 +23,7 @@ def get_env_value(env_variable):
     try:
         return os.environ[env_variable]
     except KeyError:
-        error_msg = 'Set the {} environment variable'.format(var_name)
+        error_msg = 'Set the {} environment variable'.format(env_variable)
         raise ImproperlyConfigured(error_msg)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -90,7 +90,7 @@ WSGI_APPLICATION = 'djanvaslms.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': get_env_value("DJANVAS_DATABASE_NAME")
+        'NAME': get_env_value("DJANVAS_DATABASE_NAME"),
         'USER': get_env_value("DJANVAS_DATABASE_USER"),
         #'PASSWORD': 'mypassword',
         'HOST': get_env_value("DJANVAS_DATABASE_HOST"),
