@@ -13,4 +13,11 @@ A Django layer on top of Canvas LMS (Learning Management System)
   
 ## Current Status: *under development*
 
-
+- install Postgresql
+  - Postgres was chosen over other RDBMS backends because of it's jsonb
+    column type, which makes loading json responses from the Canvas
+    api extremely convenient
+  - Other DB backends may be supported in the future
+- install django, and other libraries
+  - ```pip install -r requirements.txt```
+  - virtualenvironments are a good idea
