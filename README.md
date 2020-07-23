@@ -23,12 +23,15 @@ A Django layer on top of Canvas LMS (Learning Management System)
   - Other DB backends may be supported in the future
   - see Postgres documentation for installation instructions
   - ```createdb djanvas```
+- get Canvas api token
+  - (under Account -> Settings -> Approved Integrations -> New Access Token)
+  - eventually this will use full OAUTH but currently the token is
+    just saved in an environment variable ($DJANVAS_TOKEN)
 - install django, and other libraries
   - ```pip install -r requirements.txt```
   - virtualenvironments are a good idea
   - ``` ./manage.py makemigrations``` and ``` ./manage.py migrate```
   - ``` ./manage.py loadcourses --load_db```
-- get Canvas api token
-  - (under Account -> Settings -> Approved Integrations -> New Access Token)
-  - eventually this will use full OAUTH but currently the token is
-    just saved in an environment variable ($DJANVAS_TOKEN)
+  - ``` ./manage.py createsuperuser ```
+  - ``` ./manage.py runserver ```
+  - viewing ```localhost:8000/admin``` in a browser should now show courses
