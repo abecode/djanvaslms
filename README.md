@@ -12,7 +12,7 @@ A Django layer on top of Canvas LMS (Learning Management System)
     practical opportunity to get their hands dirty
   - use programming and devops as the primary LMS user interface
     rather than the standard Canvas web interface
-  - make use of Canvas's open api, and incredibly valuable feature
+  - make use of Canvas's open api, an incredibly valuable feature
   
 ## Current Status: *under development*
 
