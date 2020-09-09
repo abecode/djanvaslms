@@ -64,7 +64,13 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(str({key:res.get(key,"") for key in interesting_fields}))
             if options['load_db']:
-                record = Course(id = res['id'], data=res)
+                record = Course(id = res['id'], data=res,
+                                name=res.get('name', None),
+                                created_at=res.get('created_at', None),
+                                start_at=res.get('start_at', None),
+                                end_at=res.get('end_at', None),
+                                course_code=res.get('course_code', None),
+                                sis_course_id=res.get('sis_course_id', None))
                 try:
                     record.save()
                 except Exception as e:
