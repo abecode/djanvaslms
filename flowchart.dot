@@ -1,0 +1,7 @@
+digraph "flow chart"
+{
+  node [shape=box];
+  "Canvas REST API" -> "Django Script+ORM" [label="Scrape API"];
+  "Django Script+ORM" -> "Database (SQLite or Oracle)" [label="Forward Engineering"];
+  "Database (SQLite or Oracle)" -> "ER Diagram" [label="Reverse Engineering"];
+}

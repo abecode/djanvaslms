@@ -1,0 +1,73 @@
+"""read list of courses from canvas api
+
+uses $DJANVAS_TOKEN env var
+
+cf https://docs.djangoproject.com/en/3.0/howto/custom-management-commands/
+cf https://canvas.instructure.com/doc/api/courses.html
+cf https://canvas.instructure.com/doc/api/file.pagination.html
+cf https://canvas.instructure.com/doc/api/file.throttling.html
+
+"""
+import json
+import os
+import requests
+import time
+import dateutil.parser as dp
+from django.core.management.base import BaseCommand, CommandError
+from django.db import connection, reset_queries
+
+from canvas.models import Course
+
+token_env_var = "DJANVAS_TOKEN"
+per_page = 10
+interesting_fields = ['id', "name", "course_code", "workflow_state", "start_at", "uuid", "enrollments"]
+exponential_backoff_start_ms = 1000
+
+
+def read_courses(**options):
+    token = os.environ.get(token_env_var,"")
+    if not token:
+        raise CommandError(f'no token in "{token_env_var}"')
+    headers = {"Authorization": f"Bearer {token}"}
+    page = 0
+    results = []
+    while(True):
+        page += 1
+        r = requests.get(f"https://canvas.instructure.com/api/v1/courses?per_page={per_page}&page={page}", headers=headers)
+        status = r.status_code
+        xratelimitremaining = float(r.headers['X-Rate-Limit-Remaining'])
+        # be nice
+        if r.status_code == 403 and xratelimitremaining == 0:
+            time.sleep(exponential_backoff_start_ms/1000)
+            exponential_backoff_start_ms *= 2
+            page -= 1
+        results.extend(r.json())
+        if r.links['current']['url'] == r.links['last']['url']:
+            break
+    self.stderr.write(f"there were total {len(results)} results before filtering")
+    for res in results:
+        if options['current']:
+            if res.get("start_at", None) == None:
+                continue
+            timediff = time.time() - dp.parse(res.get("start_at")).timestamp()
+            if timediff > 60*60*24*6:  # start_at not within last 6 months
+                continue
+        if options['json']:
+            self.stdout.write(json.dumps(res))
+        else:
+            self.stdout.write(str({key:res.get(key,"") for key in interesting_fields}))
+        if options['load_db']:
+            record = Course(id = res['id'], data=res,
+                            name=res.get('name', None),
+                            created_at=res.get('created_at', None),
+                            start_at=res.get('start_at', None),
+                            end_at=res.get('end_at', None),
+                            course_code=res.get('course_code', None),
+                            sis_course_id=res.get('sis_course_id', None))
+            try:
+                record.save()
+            except Exception as e:
+                #print(connection.queries)
+                #reset_queries()
+                raise e
+    
