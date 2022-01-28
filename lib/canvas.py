@@ -18,7 +18,7 @@ def get_paginated_results(url, headers, timeout=5):
     page = 1
     results = []
     nrequests = 0
-        
+
     while(True):
         urlplusquery = f"{url}?per_page={per_page}&page={page}"
         print(url, headers, file=sys.stderr)
@@ -45,14 +45,14 @@ def get_paginated_results(url, headers, timeout=5):
           file=sys.stderr)
     return results
 
-    
+
 class api:
     """ general class to get data from Canvas """
     def __init__(self):
         self.token = os.environ.get(token_env_var,"")
         if not self.token:
             raise CommandError(f'no token in "{token_env_var}"')
-        
+
     def get_all_courses(self):
         page = 1
         results = []
@@ -60,14 +60,11 @@ class api:
         url = f"{base_url}{courses_api_path}"
         headers = {"Authorization": f"Bearer {self.token}"}
         courses = get_paginated_results(url, headers)
-                   
+
         # for res in courses:
         #     Print.dumps(res, sort_keys=True, indent=4), sys.stderr)
         #     interesting_fields = ['id', "name", "course_code",
         #                           "workflow_state", "start_at", "uuid", "enrollments"]
         #     #print(str({key:res.get(key,"") for key in interesting_fields}))
-            
-        return results
 
-
-        
+        return courses

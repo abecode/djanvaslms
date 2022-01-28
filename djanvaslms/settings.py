@@ -41,6 +41,8 @@ DEBUG = get_env_value('DJANVAS_DEBUG') == "True"
 
 ALLOWED_HOSTS = []
 
+# silence primary key warnings
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Application definition
 
@@ -89,14 +91,26 @@ WSGI_APPLICATION = 'djanvaslms.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': get_env_value("DJANVAS_DATABASE_NAME"),
+    #     'USER': get_env_value("DJANVAS_DATABASE_USER"),
+    #     #'PASSWORD': 'mypassword',
+    #     'HOST': get_env_value("DJANVAS_DATABASE_HOST"),
+    #     'PORT': int(get_env_value("DJANVAS_DATABASE_PORT")),
+    # },
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': 'mydatabase',
+    # },
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': get_env_value("DJANVAS_DATABASE_NAME"),
-        'USER': get_env_value("DJANVAS_DATABASE_USER"),
-        #'PASSWORD': 'mypassword',
+        'USER': 'djanvas',
         'HOST': get_env_value("DJANVAS_DATABASE_HOST"),
-        'PORT': int(get_env_value("DJANVAS_DATABASE_PORT")),
-    }
+        'PORT': 3306,
+    },
+    
 }
 
 

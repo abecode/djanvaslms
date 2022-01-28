@@ -18,54 +18,26 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import connection, reset_queries
 from django.db.utils import IntegrityError
 from canvas.models import RawJsonCourse, Course, User, Enrollment
-
+import lib.canvas
 
 token_env_var = "DJANVAS_TOKEN"
 per_page = 10
 interesting_fields = ['id', "name", "course_code", "workflow_state", "start_at", "uuid", "enrollments"]
 exponential_backoff_start_ms = 1000
-
+canvasapi = lib.canvas.api()
 
 def import_raw_json_courses(**options):
-    token = os.environ.get(token_env_var,"")
-    if not token:
-        raise CommandError(f'no token in "{token_env_var}"')
-    headers = {"Authorization": f"Bearer {token}"}
-    page = 0
-    results = []
-    while(True):
-        page += 1
-        r = requests.get(f"https://canvas.instructure.com/api/v1/courses?per_page={per_page}&page={page}", headers=headers)
-        status = r.status_code
-        xratelimitremaining = float(r.headers['X-Rate-Limit-Remaining'])
-        # be nice
-        if r.status_code == 403 and xratelimitremaining == 0:
-            time.sleep(exponential_backoff_start_ms/1000)
-            exponential_backoff_start_ms *= 2
-            page -= 1
-        results.extend(r.json())
-        if r.links['current']['url'] == r.links['last']['url']:
-            break
-    print(f"there were total {len(results)} results before filtering",
-          file=sys.stderr
-    )
-    for res in results:
-        if options.get('current'):
-            if res.get("start_at", None) == None:
-                continue
-            timediff = time.time() - dp.parse(res.get("start_at")).timestamp()
-            if timediff > 60*60*24*6:  # start_at not within last 6 months
-                continue
-        if options.get('print_json'):
-            print(json.dumps(res))
-        else:
-            print(str({key:res.get(key,"") for key in interesting_fields}))
-        if not options.get('pretend'):
-            record = RawJsonCourse(id=res['id'], json=json.dumps(res))
-            try:
-                record.save()
-            except Exception as e:
-                raise e
+    """ get the raw course info from canvas api """
+    
+    courses = canvasapi.get_all_courses()
+    for course_json in courses:
+        record = RawJsonCourse(api_id=course_json["id"], json=json.dumps(course_json))
+        try:
+            record.save()
+        except IntegrityError as e:
+            print("skipping")
+        except Exception as e:
+            raise e
     
 def save_courses(**options):
     for raw_json_course in RawJsonCourse.objects.all():
@@ -73,6 +45,7 @@ def save_courses(**options):
         json_obj = json.loads(raw_json_course.json)
         if not options.get('pretend'):
             record = Course(id=json_obj.get('id'),
+                            rawjsoncourse=raw_json_course,
                             name=json_obj.get('name'),
                             account_id=json_obj.get('account_id'),
                             uuid=json_obj.get('uuid'),
@@ -85,7 +58,7 @@ def save_courses(**options):
             )
             try:
                 record.save()
-            except Exception as e:
+            except Exception as e: 
                 raise e
         
 
@@ -101,20 +74,21 @@ def import_users_and_enrollments(**options):
     skip_ids.add(73770000000017333) # something I'm not authorized for
     skip_ids.add(73770000000018196) # devops
     skip_ids.add(73770000000037256) # instructional continuity resources
+    skip_ids.add(73770000000028287) # something with >500 pages of enrollments
     token = os.environ.get(token_env_var,"")
     if not token:
         raise CommandError(f'no token in "{token_env_var}"')
     headers = {"Authorization": f"Bearer {token}"}
     for course in Course.objects.all():
-        print(course.id)
+        print(course.id, course.rawjsoncourse_id)
         if course.id in skip_ids:
             print("skipping", course.id)
             continue
         #only get 630 sp 2021
-        if course.id not in set([73770000000043027,
-                                73770000000040995,
-                                 73770000000040848]):
-            continue
+        # if course.id not in set([73770000000043027,
+        #                         73770000000040995,
+        #                          73770000000040848]):
+            #continue
 #        if course.id != "73770000000043027":  # for now just 630
 #            continue
 
@@ -194,11 +168,7 @@ class Command(BaseCommand):
 
     help = "reads courses from the canvas api"
 
-    def add_arguments(self, parser):
-        parser.add_argument('--current', action='store_true', default=False, help='try to get only the current courses')
-        parser.add_argument('--json', action='store_true', default=False, help='print raw json output instead of interesting fields')
-        parser.add_argument('--load_db', action='store_true', default=False, help='load the courses into the db via django')
     def handle(self, *args, **options):
-        import_raw_json_courses(**options)
-        save_courses(**options)
+        #import_raw_json_courses(**options)
+        #save_courses(**options)
         import_users_and_enrollments(**options)

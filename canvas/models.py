@@ -1,5 +1,22 @@
+from datetime import date
 from django.db import models
+from django.utils.timezone import now
 #from django.contrib.postgres.fields import JSONField
+
+INPERSON = "inperson"
+VIRTUAL = "virtual"
+ABSENT = "absent"
+EXCUSED = "excused"
+LATE = "late"
+
+ATTENDANCE_CHOICES = (
+    (INPERSON, "In Person"),
+    (VIRTUAL, "Virtual"),
+    (ABSENT, "Absent"),
+    (EXCUSED, "Excused"),
+    (LATE, "Late"))
+
+
 
 # Create your models here.
 class RawJsonCourse(models.Model):
@@ -11,9 +28,8 @@ class RawJsonCourse(models.Model):
     key
 
     """
-    id = models.BigIntegerField(primary_key=True)
     json = models.TextField()
-
+    api_id = models.BigIntegerField(unique=True)
     def __str__(self):
         return f"Course(id={self.id})"
 
@@ -26,6 +42,7 @@ class Course(models.Model):
 
     """
     id = models.BigIntegerField(primary_key=True)
+    rawjsoncourse = models.ForeignKey(RawJsonCourse, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, blank=True, default=None, null=True)
     account_id = models.BigIntegerField(null=True)
     uuid = models.CharField(max_length=100, blank=True, default=None, null=True)
@@ -76,3 +93,27 @@ class Enrollment(models.Model):
     total_activity_time = models.BigIntegerField(blank=True, default=None, null=True)
     class Meta:
         unique_together = ('user', 'course', 'type')
+
+class ClassSesh(models.Model):
+    """ a course meets for (usually) 14 class sessions per semester 
+    """
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    date = models.DateField(blank=False, null=False, default=date.today)
+
+class Attendance(models.Model):
+    """for each classSesh, for each student, there can be zero or more
+    attendance taken"""
+    course = models.ForeignKey(ClassSesh, on_delete=models.CASCADE)
+    datetime = models.DateField(default=now)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    state =  models.CharField(max_length=10, choices=ATTENDANCE_CHOICES)
+
+class Participation(models.Model):
+    """for each classSesh, for each student, there can be zero or more
+    attendance taken"""
+    course = models.ForeignKey(ClassSesh, on_delete=models.CASCADE)
+    datetime = models.DateField(default=now)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    value = models.IntegerField(default=1)
+    note = models.CharField(max_length=420, null=True, blank=True)
+    
