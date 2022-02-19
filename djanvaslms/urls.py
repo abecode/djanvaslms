@@ -15,7 +15,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from canvas.views import (current_datetime,
+                          async_datetime,
+                          CourseListView,
+                          CourseEnrollmentListView,
+                          )
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('datetime/', current_datetime),
+    path('adt/', async_datetime),
+    path('courses/', CourseListView.as_view(),
+         name='course-list'),
+    path('course-enrollments/<int:course_id>/',
+         CourseEnrollmentListView.as_view(),
+         name='course-enrollment-list'),
 ]

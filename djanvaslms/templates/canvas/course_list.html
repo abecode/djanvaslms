@@ -1,0 +1,15 @@
+<h1>Courses</h1>
+<ul>
+{% for course in object_list %}
+<li>
+  {{ course.name }} - {{ course.start_at }}
+  <a href="https://stthomas.instructure.com/courses/{{course.id}}">
+  Canvas</a>
+  <a href="/course-enrollments/{{course.id}}">
+  Enrollment</a>
+  
+</li>
+{% empty %}
+    <li>No courses yet.</li>
+{% endfor %}
+</ul>

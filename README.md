@@ -58,7 +58,13 @@ nested in this enrollment output, but I didn't save this because I
 think that one benefit of Canvas is having a standard privacy policy
 regarding grades.
 
+eg:
 
+```
+curl -H "Authorization: Bearer 7377..." 'https://stthomas.instructure.com/api/v1/courses/73770000000051884/sections'
+# below shows the weird query param with square brackets
+curl -H "Authorization: Bearer 7377..." 'https://stthomas.instructure.com/api/v1/courses/73770000000051884/sections?include%5B%5D=students&include%5B%5D=enrollments' | python -m json.tool
+```
 
 ## Other notes
 
