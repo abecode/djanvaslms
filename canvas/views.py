@@ -35,7 +35,8 @@ class CourseEnrollmentListView(ListView):
         print("self.request.GET: ", self.request.GET)
         context = super().get_context_data(**kwargs)
         print(context)
-        context["object_list"] = Enrollment.objects.filter(course=self.kwargs['course_id'])
+        context["object_list"] = Enrollment.objects.filter(
+            course=self.kwargs['course_id'])
         context["course"] = context["object_list"][0].course
 
         return context

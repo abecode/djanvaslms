@@ -30,6 +30,7 @@ class RawJsonCourse(models.Model):
     """
     json = models.TextField()
     api_id = models.BigIntegerField(unique=True)
+    selected = models.BooleanField(default=False)
     def __str__(self):
         return f"Course(id={self.id})"
 
