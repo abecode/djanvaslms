@@ -1,0 +1,16 @@
+<h1>Courses</h1>
+<ul>
+{% for enrollment in object_list %}
+<li>
+  {{ enrollment.course_id }} {{ enrollment.user_id }}
+  <!-- {{ course.name }} - {{ course.start_at }} -->
+  <!-- <a href="https://stthomas.instructure.com/courses/{{course.id}}"> -->
+  <!-- Canvas</a> -->
+  <!-- <a href="/course-enrollments/{{course.id}}"> -->
+  <!-- Enrollment</a> -->
+  
+</li>
+{% empty %}
+    <li>No articles yet.</li>
+{% endfor %}
+</ul>
