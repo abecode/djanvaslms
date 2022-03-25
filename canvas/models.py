@@ -19,7 +19,19 @@ ATTENDANCE_CHOICES = (
 
 
 # Create your models here.
-class RawJsonCourse(models.Model):
+class Pull(models.Model):
+    """this model represents a pull from the canvas api
+    
+    the id is kind of like the "application state" in REST, but it's
+    only the initial application state, the initial set of canvas api
+    responsesused to set up the db, first to RawJson as a staging
+    area, then to the actual db.
+
+    """
+    ts = models.DateTimeField(auto_now_add=True)
+
+class RawJson(models.Model):
+
     """a model for a course
 
     based on Canvas output, just the raw json
@@ -29,8 +41,13 @@ class RawJsonCourse(models.Model):
 
     """
     json = models.TextField()
-    api_id = models.BigIntegerField(unique=True)
+    api_id = models.BigIntegerField()
+    model = models.CharField(max_length=100, blank=True, default=None,
+                             null=True)
+    pull = models.ForeignKey(Pull, on_delete=models.CASCADE)
     selected = models.BooleanField(default=False)
+    class Meta:
+        unique_together = [['api_id', 'pull', 'model']]
     def __str__(self):
         return f"Course(id={self.id})"
 
@@ -43,7 +60,6 @@ class Course(models.Model):
 
     """
     id = models.BigIntegerField(primary_key=True)
-    rawjsoncourse = models.ForeignKey(RawJsonCourse, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, blank=True, default=None, null=True)
     account_id = models.BigIntegerField(null=True)
     uuid = models.CharField(max_length=100, blank=True, default=None, null=True)
@@ -57,7 +73,30 @@ class Course(models.Model):
     def __str__(self):
         return f"Course(id={self.id}, name={self.name}, created_at={self.created_at}, start_at={self.start_at}, end_at={self.end_at}, course_code={self.course_code}, sis_course_id={self.sis_course_id})"
 
+
+class CourseSection(models.Model):
+    """model for a course section.  these occur when two or more courses
+    are merged into a single class with multiple sections
+    
+    e.g. GET https://stthomas.instructure.com/api/v1/courses/73770000000051884/sections
+
+    which should return two sections
+    """
+    id = models.BigIntegerField(primary_key=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, blank=True, default=None, null=True)
+    start_at = models.DateTimeField(blank=True, default=None, null=True)
+    created_at = models.DateTimeField(blank=True, default=None, null=True)
+    end_at = models.DateTimeField(blank=True, default=None, null=True)
+    sis_course_id = models.CharField(max_length=100, blank=True, default=None, null=True)
+    sis_section_id = models.CharField(max_length=100, blank=True, default=None, null=True)
+
+
+    
+
+    
 class User(models.Model):
+
     """a model for a canvas user 
     
     includes both students, teachers, and observers
@@ -85,7 +124,7 @@ class Enrollment(models.Model):
     type = models.CharField(max_length=100, blank=True, default=None, null=True)
     created_at = models.DateTimeField(blank=True, default=None, null=True)
     updated_at = models.DateTimeField(blank=True, default=None, null=True)
-    course_section_id = models.BigIntegerField(blank=True, default=None, null=True)
+    course_section = models.ForeignKey(CourseSection, on_delete=models.CASCADE)
     enrollment_state = models.CharField(max_length=100, blank=True, default=None, null=True)
     role = models.CharField(max_length=100, blank=True, default=None, null=True)
     role_id = models.BigIntegerField(blank=True, default=None, null=True)

@@ -192,7 +192,7 @@ get back all the information in the response.  The example is the enrollment api
 
 ## Naming
 
-## DBA
+## DBA, oracle
 
 to create the blank database schema, I logged into the system schema/user.  The following commands create a user/schema called djanvas
 
@@ -241,6 +241,40 @@ ContentType.objects.all().delete()
 ```
 python manage.py loaddata db.json
 ```
+
+## setup database for mysql
+
+```
+CREATE DATABASE djanvas;
+CREATE USER 'djanvas'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL ON djanvas.* TO 'djanvas'@'localhost';
+FLUSH PRIVILEGES;
+
+# for tests:
+create database test_djanvas;
+grant all on test_djanvas.* to 'djanvas'@'localhost';
+FLUSH PRIVILEGES;
+
+```
+
+## redis/celery
+
+https://medium.com/swlh/python-developers-celery-is-a-must-learn-technology-heres-how-to-get-started-578f5d63fab3
+
+```
+wget http://download.redis.io/redis-stable.tar.gz
+tar -xvf redis-stable.tar.tz
+cd redis-stable
+make
+make test
+```
+
+```
+python manage.py shell
+from celery_tutorial.celery import debug_task
+debug_task.delay()
+```
+
 
 # Conclusion
 
