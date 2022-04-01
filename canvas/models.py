@@ -21,7 +21,7 @@ ATTENDANCE_CHOICES = (
 # Create your models here.
 class Pull(models.Model):
     """this model represents a pull from the canvas api
-    
+
     the id is kind of like the "application state" in REST, but it's
     only the initial application state, the initial set of canvas api
     responsesused to set up the db, first to RawJson as a staging
@@ -77,7 +77,7 @@ class Course(models.Model):
 class CourseSection(models.Model):
     """model for a course section.  these occur when two or more courses
     are merged into a single class with multiple sections
-    
+
     e.g. GET https://stthomas.instructure.com/api/v1/courses/73770000000051884/sections
 
     which should return two sections
@@ -92,13 +92,27 @@ class CourseSection(models.Model):
     sis_section_id = models.CharField(max_length=100, blank=True, default=None, null=True)
 
 
-    
+class QualitativeReview(models.Model):
+    """ model for a qualitative review of a course section
 
-    
+    I'm using this for IDEA surveys but trying to make to more general"""
+    course_section = models.ForeignKey(CourseSection, on_delete=models.CASCADE)
+    qualitative_provenance_choices = [
+        (None, 'None',),
+        ('IDEA', 'IDEA survey',)
+    ]
+    provenance = models.CharField(default=None, blank=True, max_length=30,
+                                  choices=qualitative_provenance_choices)
+    text = models.TextField(max_length=16383)
+    user = models.ForeignKey('User', null=True, on_delete=models.SET_NULL)
+
+
+
+
 class User(models.Model):
 
-    """a model for a canvas user 
-    
+    """a model for a canvas user
+
     includes both students, teachers, and observers
     """
     id = models.BigIntegerField(primary_key=True)
@@ -113,7 +127,7 @@ class User(models.Model):
 
 class Enrollment(models.Model):
     """association table for enrollment of users to courses
-    
+
     includes both students, teachers, and observers (see type
     attribute)
 
@@ -135,7 +149,7 @@ class Enrollment(models.Model):
         unique_together = ('user', 'course', 'type')
 
 class ClassSesh(models.Model):
-    """ a course meets for (usually) 14 class sessions per semester 
+    """ a course meets for (usually) 14 class sessions per semester
     """
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     date = models.DateField(blank=False, null=False, default=date.today)
@@ -156,4 +170,3 @@ class Participation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     value = models.IntegerField(default=1)
     note = models.CharField(max_length=420, null=True, blank=True)
-    
