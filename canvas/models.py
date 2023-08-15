@@ -71,7 +71,7 @@ class Course(models.Model):
     sis_course_id = models.CharField(max_length=100, blank=True, default=None, null=True)
 
     def __str__(self):
-        return f"Course(id={self.id}, name={self.name}, created_at={self.created_at}, start_at={self.start_at}, end_at={self.end_at}, course_code={self.course_code}, sis_course_id={self.sis_course_id})"
+        return self.name
 
 
 class CourseSection(models.Model):
@@ -91,6 +91,8 @@ class CourseSection(models.Model):
     sis_course_id = models.CharField(max_length=100, blank=True, default=None, null=True)
     sis_section_id = models.CharField(max_length=100, blank=True, default=None, null=True)
 
+    def __string__(self):
+        return self.name
 
 class QualitativeReview(models.Model):
     """ model for a qualitative review of a course section
@@ -124,6 +126,8 @@ class User(models.Model):
     root_account = models.CharField(max_length=100, blank=True, default=None, null=True)
     login_id = models.CharField(max_length=100, blank=True, default=None, null=True)
 
+    def __str__(self):
+        return self.name
 
 class Enrollment(models.Model):
     """association table for enrollment of users to courses

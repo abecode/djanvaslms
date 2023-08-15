@@ -30,13 +30,10 @@ class CourseEnrollmentListView(ListView):
     paginate_by = 100
     #ordering = ['-start_at']
     def get_context_data(self, **kwargs):
-        print("request: ", self.request)
-        print("self.kwargs: ", self.kwargs)
-        print("self.request.GET: ", self.request.GET)
         context = super().get_context_data(**kwargs)
-        print(context)
         context["object_list"] = Enrollment.objects.filter(
             course=self.kwargs['course_id'])
         context["course"] = context["object_list"][0].course
+        return context
 
         return context

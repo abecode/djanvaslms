@@ -204,13 +204,13 @@ class Command(BaseCommand):
     help = "reads courses from the canvas api"
 
     def handle(self, *args, **options):
-        #pull = Pull()
-        #pull.save()
-        pull = Pull.objects.get(id=26)
+        pull = Pull()
+        pull.save()
+        #pull = Pull.objects.get(id=26)
         print(f"Running Pull {pull.id}")
-        #import_raw_json_courses(pull, **options)
-        #import_raw_json_sections(pull, **options)
-        #import_raw_json_enrollments(pull, **options)
+        import_raw_json_courses(pull, **options)
+        import_raw_json_sections(pull, **options)
+        import_raw_json_enrollments(pull, **options)
 
         save_courses(pull, **options)
         save_course_sections(pull)
