@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views.generic.list import ListView
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound, JsonResponse
 import datetime
 from django.utils import timezone
 
@@ -24,7 +24,7 @@ class CourseListView(ListView):
         context = super().get_context_data(**kwargs)
         context['now'] = timezone.now()
         return context
-    
+
 class CourseEnrollmentListView(ListView):
     model = Enrollment
     paginate_by = 100
@@ -36,4 +36,18 @@ class CourseEnrollmentListView(ListView):
         context["course"] = context["object_list"][0].course
         return context
 
+class HomeView(ListView):
+    model = Course
+    paginate_by = 100
+    ordering = ['-start_at']
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['now'] = timezone.now()
         return context
+
+def courses_as_json(request):
+    data = Course.objects.all().values().order_by("-start_at", "name", )
+    return JsonResponse(list(data), safe=False)
+
+def d3(request):
+    return render(request, 'd3.html')

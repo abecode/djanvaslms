@@ -19,6 +19,9 @@ from canvas.views import (current_datetime,
                           async_datetime,
                           CourseListView,
                           CourseEnrollmentListView,
+                          HomeView,
+                          courses_as_json,
+                          d3
                           )
 
 urlpatterns = [
@@ -30,4 +33,8 @@ urlpatterns = [
     path('course-enrollments/<int:course_id>/',
          CourseEnrollmentListView.as_view(),
          name='course-enrollment-list'),
+    path('courses-json/', courses_as_json, name='courses-json'),
+    path('d3/', d3, name='d3'),
+    path('', HomeView.as_view(), name='home-view'),
+
 ]
