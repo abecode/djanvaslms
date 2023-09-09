@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+</style>
+<body>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+
+
+  (async function() {
+      try {
+	  const data = await d3.json("{% url "courses-json" %}");
+	  console.log(data);
+	  const el = d3.select("#canvas_container")
+		.selectAll("p")
+		.data(data)
+		.join("p")
+		.text((d) => d.name)
+		.on('click',
+		    function(event, d){
+		       window.open("/course-enrollments/"+d.id);
+  }
+		   );
+
+
+      } catch(error) {
+	  console.log(error);
+      }
+  })();
+
+  <!-- d3.json("{% url "courses-json" %}").then((data) => {  console.log(data); }) -->
+
+  console.log("hi");
+</script>
+<h1> D3, Yay!</h1>
+<div id="canvas_container"> </div>
+</body>
+</html>
