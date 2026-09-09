@@ -32,7 +32,7 @@ urlpatterns = [
          name='course-list'),
     path('course-enrollments/<int:course_id>/',
          CourseEnrollmentListView.as_view(),
-         name='course-enrollment-list'),
+         name='course-enrollments'),
     path('courses-json/', courses_json, name='courses-json'),
     path('d3/', d3, name='d3'),
     path('', HomeView.as_view(), name='home-view'),

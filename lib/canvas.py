@@ -49,6 +49,8 @@ def get_paginated_results(url, headers, timeout=5):
             return []
         if status == 401:
             return []
+        #print(results)
+        #sys.exit()
         results.extend(resp.json())
         print("\n\n", resp.links, "\n\n")
         if 'next' in resp.links:
