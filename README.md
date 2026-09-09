@@ -1,5 +1,36 @@
 # Canvas REST API to Relational Database
 
+## Local setup with uv
+
+Python dependencies are managed in `pyproject.toml` and pinned in `uv.lock`.
+The `.python-version` file selects Python 3.12.
+
+```sh
+uv sync --locked
+source .venv/bin/activate
+uv run --env-file env/local.env python manage.py help sync_canvas_data
+```
+
+`uv sync` creates `.venv` and installs the locked dependencies. Activation
+is optional when using `uv run`; it also switches away from an older active
+virtual environment. Keep credentials in the ignored `env/local.env` file.
+The `--env-file` option loads them for the command without shell sourcing.
+
+Set `DJANVAS_CANVAS_BASE_URL` in `env/local.env` to your institution's API
+base URL (including `/api`), for example
+`DJANVAS_CANVAS_BASE_URL=https://stthomas.instructure.com/api` if that is
+the site where you access your courses and create your token. If unset,
+the legacy default is `https://canvas.instructure.com/api`.
+
+When ready to fetch Canvas data and update the configured database, run:
+
+```sh
+uv run --env-file env/local.env python manage.py sync_canvas_data
+```
+
+Use `uv add PACKAGE` for future dependency changes. `requirements.txt` is
+the legacy dependency list; uv uses `pyproject.toml` and `uv.lock`.
+
 I wanted to try out doing a final project because it seems fun.  Also,
 since it is my first time teaching this class, I wanted to gain an
 appreciation of how my users/students see the activity.  This is a
@@ -287,4 +318,3 @@ Canvas, put it in a spreadsheet, etc.  However, with the data in a
 database, it could be very quick and also enable other types of
 queries.  It would also help professors practice SQL (professors need
 practice too).
-
